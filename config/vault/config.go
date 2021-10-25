@@ -82,6 +82,9 @@ func (s *source) Load() ([]*config.KeyValue, error) {
 		return nil, err
 	}
 
+	if secret == nil {
+		return []*config.KeyValue{}, nil
+	}
 	return extractKV(secret.Data), nil
 }
 

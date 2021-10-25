@@ -3,7 +3,8 @@ package logger
 import (
 	"os"
 
-	zapLog "github.com/go-kratos/kratos/contrib/log/zap/v2"
+	zapLog "kratos-starter/logger/zap"
+
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	lumberjack "gopkg.in/natefinch/lumberjack.v2"
@@ -11,7 +12,7 @@ import (
 
 func NewLogger() *zapLog.Logger {
 	fileOut := zapcore.AddSync(&lumberjack.Logger{
-		Filename:   "./elk.log",
+		Filename:   "./logs/elk.log",
 		MaxSize:    10, // megabytes
 		MaxBackups: 3,
 		MaxAge:     3, // days
@@ -24,7 +25,7 @@ func NewLogger() *zapLog.Logger {
 
 	core := zapcore.NewCore(zapcore.NewJSONEncoder(config), w, zap.InfoLevel)
 
-	zlog := zap.New(core, zap.ErrorOutput(zapcore.AddSync(os.Stderr)), zap.AddCaller(), zap.AddStacktrace(zap.ErrorLevel))
+	zlog := zap.New(core, zap.ErrorOutput(zapcore.AddSync(os.Stderr)), zap.AddCaller(), zap.AddCallerSkip(3), zap.AddStacktrace(zap.ErrorLevel))
 
 	return zapLog.NewLogger(zlog)
 }
