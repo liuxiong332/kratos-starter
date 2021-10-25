@@ -46,7 +46,6 @@ require (
 	github.com/hashicorp/vault/sdk v0.2.1 // indirect
 	github.com/pierrec/lz4 v2.6.1+incompatible // indirect
 	github.com/ryanuber/go-glob v1.0.0 // indirect
-	github.com/stretchr/testify v1.7.0
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
 	golang.org/x/net v0.0.0-20211020060615-d418f374d309 // indirect
 	golang.org/x/text v0.3.7 // indirect
@@ -66,6 +65,7 @@ require (
 require (
 	github.com/gin-gonic/gin v1.7.4
 	github.com/go-kratos/gin v0.1.0
+	github.com/stretchr/testify v1.7.0
 )
 
 require (
