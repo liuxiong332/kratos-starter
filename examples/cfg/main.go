@@ -3,7 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"kratos-starter/app"
+
+	"github.com/liuxiong332/kratos-starter/app"
 
 	"github.com/go-kratos/kratos/v2"
 )

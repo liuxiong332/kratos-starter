@@ -3,7 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
-	"kratos-starter/app"
+
+	"github.com/liuxiong332/kratos-starter/app"
 
 	"github.com/gin-gonic/gin"
 	kgin "github.com/go-kratos/gin"

@@ -1,4 +1,4 @@
-module kratos-starter
+module github.com/liuxiong332/kratos-starter
 
 go 1.17
 

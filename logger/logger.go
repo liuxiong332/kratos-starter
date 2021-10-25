@@ -3,7 +3,7 @@ package logger
 import (
 	"os"
 
-	zapLog "kratos-starter/logger/zap"
+	zapLog "github.com/liuxiong332/kratos-starter/logger/zap"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"

@@ -8,20 +8,20 @@ import (
 	"os"
 	"strings"
 
-	consulConfig "kratos-starter/config/consul"
+	consulConfig "github.com/liuxiong332/kratos-starter/config/consul"
 
-	"kratos-starter/registry/consul"
-	consulRegistry "kratos-starter/registry/consul"
+	"github.com/liuxiong332/kratos-starter/registry/consul"
+	consulRegistry "github.com/liuxiong332/kratos-starter/registry/consul"
 
 	"github.com/hashicorp/consul/api"
 
-	vaultConfig "kratos-starter/config/vault"
+	vaultConfig "github.com/liuxiong332/kratos-starter/config/vault"
 
 	vaultApi "github.com/hashicorp/vault/api"
 
-	appLog "kratos-starter/logger"
+	appLog "github.com/liuxiong332/kratos-starter/logger"
 
-	zapLog "kratos-starter/logger/zap"
+	zapLog "github.com/liuxiong332/kratos-starter/logger/zap"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/registry"
