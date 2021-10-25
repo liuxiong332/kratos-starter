@@ -1,4 +1,4 @@
-# github.com/liuxiong332/kratos-starter
+# kratos-starter
 
 Kratos starter is the golang micro service framework starter that based on [kratos](https://github.com/go-kratos/kratos)
 
