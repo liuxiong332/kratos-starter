@@ -70,10 +70,13 @@ func (s *source) Load() ([]*config.KeyValue, error) {
 
 	kvs := make([]*config.KeyValue, 0)
 	for _, item := range kv {
-		kvs = append(kvs, &config.KeyValue{
-			Key:   string(item.Key[len(pathPrefix):]),
-			Value: item.Value,
-		})
+		key := string(item.Key[len(pathPrefix):])
+		if key != "" {
+			kvs = append(kvs, &config.KeyValue{
+				Key:   key,
+				Value: item.Value,
+			})
+		}
 	}
 	return kvs, nil
 }

@@ -3,7 +3,6 @@ package app
 import (
 	"context"
 	"errors"
-	"flag"
 	"fmt"
 	"os"
 	"strings"
@@ -30,42 +29,6 @@ import (
 	"github.com/go-kratos/kratos/v2/config/env"
 	"github.com/go-kratos/kratos/v2/config/file"
 )
-
-type BootstrapConfig struct {
-	ConfigPath    string
-	ConsulAddress string
-	ConsulToken   string
-	VaultToken    string
-}
-
-func copyIfNotEmpty(str *string, target *string) {
-	if *str != "" {
-		*target = *str
-	}
-}
-
-func ParseBootstrapConfigEnv() *BootstrapConfig {
-	config := BootstrapConfig{
-		os.Getenv("APP_CONFIG_PATH"),
-		os.Getenv("APP_CONSUL_ADDRESS"),
-		os.Getenv("APP_CONSUL_TOKEN"),
-		os.Getenv("APP_VAULT_TOKEN"),
-	}
-
-	configPath := flag.String("config_path", "", "Config path")
-	address := flag.String("consul_address", "", "Consul Address like localhost:8500")
-	token := flag.String("consul_token", "", "Consul Token")
-	vaultToken := flag.String("vault_token", "", "Vault Token")
-
-	flag.Parse()
-
-	copyIfNotEmpty(configPath, &config.ConfigPath)
-	copyIfNotEmpty(address, &config.ConsulAddress)
-	copyIfNotEmpty(token, &config.ConsulToken)
-	copyIfNotEmpty(vaultToken, &config.VaultToken)
-
-	return &config
-}
 
 func GetInstance(discovery registry.Discovery, serviceName string, logHelper *log.Helper) string {
 	watcher, err := discovery.Watch(context.Background(), serviceName)

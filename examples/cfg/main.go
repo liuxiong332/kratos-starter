@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	appStarter := app.NewApp("webull-technical-insight-worker", nil)
+	appStarter := app.NewApp("ai-studio", nil)
 
 	var kvs map[string]interface{}
 
@@ -27,7 +27,7 @@ func main() {
 	}
 
 	app := kratos.New(
-		kratos.Name("webull-technical-insight-worker"),
+		kratos.Name("ai-studio"),
 		kratos.Version(""),
 		kratos.Metadata(map[string]string{}),
 		kratos.Logger(appStarter.Logger),
