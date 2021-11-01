@@ -26,6 +26,13 @@ func WithHealthCheck(enable bool) Option {
 	}
 }
 
+// WithTags with customized tags option.
+func WithTags(tags []string) Option {
+	return func(o *Registry) {
+		o.tags = tags
+	}
+}
+
 // Config is consul registry config
 type Config struct {
 	*api.Config
@@ -36,6 +43,7 @@ type Registry struct {
 	cfg               *Config
 	cli               *Client
 	enableHealthCheck bool
+	tags              []string
 
 	registry map[string]*serviceSet
 	lock     sync.RWMutex
@@ -56,7 +64,7 @@ func New(apiClient *api.Client, opts ...Option) *Registry {
 
 // Register register service
 func (r *Registry) Register(ctx context.Context, svc *registry.ServiceInstance) error {
-	return r.cli.Register(ctx, svc, r.enableHealthCheck)
+	return r.cli.Register(ctx, svc, r.enableHealthCheck, r.tags)
 }
 
 // Deregister deregister service

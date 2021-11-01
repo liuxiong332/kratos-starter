@@ -85,7 +85,12 @@ func NewApp(appName string, bootstrapConfig *BootstrapConfig) *AppStarter {
 	// logHelper.Info("Get Consul config: %+v", kvs)
 
 	// 初始化 consul registry
-	registry := consulRegistry.New(client)
+	var registry *consul.Registry
+	if bootstrapConfig.ConsulTags != "" {
+		registry = consulRegistry.New(client, consul.WithTags(strings.Split(bootstrapConfig.ConsulTags, ",")))
+	} else {
+		registry = consulRegistry.New(client)
+	}
 
 	logHelper.Info("Start init vault config")
 	// 初始化 vault config

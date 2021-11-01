@@ -69,7 +69,7 @@ func (d *Client) Service(ctx context.Context, service string, index uint64, pass
 }
 
 // Register register service instacen to consul
-func (d *Client) Register(ctx context.Context, svc *registry.ServiceInstance, enableHealthCheck bool) error {
+func (d *Client) Register(ctx context.Context, svc *registry.ServiceInstance, enableHealthCheck bool, tags []string) error {
 	addresses := make(map[string]api.ServiceAddress)
 	var addr string
 	var port uint64
@@ -82,11 +82,15 @@ func (d *Client) Register(ctx context.Context, svc *registry.ServiceInstance, en
 		port, _ = strconv.ParseUint(raw.Port(), 10, 16)
 		addresses[raw.Scheme] = api.ServiceAddress{Address: endpoint, Port: int(port)}
 	}
+	cTags := []string{fmt.Sprintf("version=%s", svc.Version)}
+	for _, tag := range tags {
+		cTags = append(cTags, tag)
+	}
 	asr := &api.AgentServiceRegistration{
 		ID:              svc.ID,
 		Name:            svc.Name,
 		Meta:            svc.Metadata,
-		Tags:            []string{fmt.Sprintf("version=%s", svc.Version)},
+		Tags:            cTags,
 		TaggedAddresses: addresses,
 		Address:         addr,
 		Port:            int(port),

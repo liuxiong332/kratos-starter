@@ -9,6 +9,7 @@ type BootstrapConfig struct {
 	ConfigPath    string
 	ConsulAddress string
 	ConsulToken   string
+	ConsulTags    string
 	VaultToken    string
 }
 
@@ -23,6 +24,7 @@ func ParseBootstrapConfigEnv() *BootstrapConfig {
 		os.Getenv("APP_CONFIG_PATH"),
 		os.Getenv("APP_CONSUL_ADDRESS"),
 		os.Getenv("APP_CONSUL_TOKEN"),
+		os.Getenv("APP_CONSUL_TAGS"),
 		os.Getenv("APP_VAULT_TOKEN"),
 	}
 
