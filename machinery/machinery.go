@@ -15,13 +15,13 @@ import (
 )
 
 type MachineryConfig struct {
-	MongoConfig mongoUtils.MongoConfig
-	RedisConfig redisUtils.RedisConfig
+	MongoConfig *mongoUtils.MongoConfig
+	RedisConfig *redisUtils.RedisConfig
 	TaskDBName  string
 }
 
 func StartServer(machineryCfg MachineryConfig) (*machinery.Server, error) {
-	client, err := mongoUtils.NewClient(&machineryCfg.MongoConfig)
+	client, err := mongoUtils.NewClient(machineryCfg.MongoConfig)
 	if err != nil {
 		return nil, err
 	}
