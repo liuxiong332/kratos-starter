@@ -1,4 +1,4 @@
-package scheduler
+package machinery
 
 import (
 	"github.com/RichardKnop/machinery/v2"
