@@ -57,13 +57,8 @@ func StartServer(machineryCfg MachineryConfig) (*machinery.Server, error) {
 	return server, nil
 }
 
-func Worker(machineryCfg MachineryConfig) error {
-	consumerTag := "machinery_worker"
-
-	server, err := StartServer(machineryCfg)
-	if err != nil {
-		return err
-	}
+func Worker(server *machinery.Server, consumerTag string) error {
+	// consumerTag := "machinery_worker"
 
 	// The second argument is a consumer tag
 	// Ideally, each worker should have a unique tag (worker1, worker2 etc)
