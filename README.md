@@ -40,10 +40,10 @@ import (
 )
 
 func main() {
-	appStarter := app.NewApp("webull-technical-insight-worker", nil)
+	appStarter := app.NewApp("my-worker", nil)
 
 	app := kratos.New(
-		kratos.Name("webull-technical-insight-worker"),
+		kratos.Name("my-worker"),
 		kratos.Version(""),
 		kratos.Metadata(map[string]string{}),
 		kratos.Logger(appStarter.Logger),
