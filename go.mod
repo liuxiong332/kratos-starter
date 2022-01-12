@@ -47,7 +47,7 @@ require (
 	github.com/pierrec/lz4 v2.6.1+incompatible // indirect
 	github.com/ryanuber/go-glob v1.0.0 // indirect
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
-	golang.org/x/net v0.0.0-20211020060615-d418f374d309 // indirect
+	golang.org/x/net v0.0.0-20211208012354-db4efeb81f4b // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac // indirect
 	gopkg.in/square/go-jose.v2 v2.6.0 // indirect
@@ -100,6 +100,7 @@ require (
 )
 
 require (
+	github.com/Comcast/go-leaderelection v0.0.0-20211210163058-1d7a4eade3f5
 	github.com/RichardKnop/machinery/v2 v2.0.11
 	github.com/armon/go-radix v1.0.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
@@ -108,6 +109,7 @@ require (
 	github.com/go-playground/validator/v10 v10.9.0 // indirect
 	github.com/go-redis/redis/v8 v8.11.4
 	github.com/go-redsync/redsync/v4 v4.5.0
+	github.com/go-zookeeper/zk v1.0.2
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/hashicorp/go-plugin v1.0.1 // indirect
