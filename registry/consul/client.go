@@ -54,7 +54,8 @@ func (d *Client) Service(ctx context.Context, service string, index uint64, pass
 			endpoints = append(endpoints, addr.Address)
 		}
 		if entry.Service.Address != "" {
-			endpoints = append(endpoints, fmt.Sprintf("%s:%d", entry.Service.Address, entry.Service.Port))
+			endpoints = append(endpoints, fmt.Sprintf("http://%s:%d", entry.Service.Address, entry.Service.Port))
+			endpoints = append(endpoints, fmt.Sprintf("grpc://%s:%d", entry.Service.Address, entry.Service.Port))
 		}
 
 		services = append(services, &registry.ServiceInstance{
