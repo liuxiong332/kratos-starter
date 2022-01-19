@@ -15,9 +15,10 @@ import (
 )
 
 type MachineryConfig struct {
-	MongoConfig *mongoUtils.MongoConfig
-	RedisConfig *redisUtils.RedisConfig
-	TaskDBName  string
+	MongoConfig  *mongoUtils.MongoConfig
+	RedisConfig  *redisUtils.RedisConfig
+	TaskDatabase string
+	DefaultQueue string
 }
 
 func StartServer(machineryCfg MachineryConfig) (*machinery.Server, error) {
@@ -27,7 +28,7 @@ func StartServer(machineryCfg MachineryConfig) (*machinery.Server, error) {
 	}
 
 	cnf := &config.Config{
-		DefaultQueue:    "machinery_tasks",
+		DefaultQueue:    machineryCfg.DefaultQueue,
 		ResultsExpireIn: 3600,
 		Redis: &config.RedisConfig{
 			MaxIdle:                3,
@@ -40,7 +41,7 @@ func StartServer(machineryCfg MachineryConfig) (*machinery.Server, error) {
 		},
 		MongoDB: &config.MongoDBConfig{
 			Client:   client,
-			Database: machineryCfg.TaskDBName,
+			Database: machineryCfg.TaskDatabase,
 		},
 	}
 
