@@ -38,7 +38,7 @@ func NewClient(config *MongoConfig) (*mongo.Client, error) {
 	defer cancel()
 
 	mongoOpts := options.Client().ApplyURI(mongoUri)
-	if config.MinPoolSize == 0 {
+	if config.MinPoolSize != 0 {
 		mongoOpts.SetMinPoolSize(uint64(config.MinPoolSize))
 	}
 	if config.MaxPoolSize != 0 {
