@@ -6,22 +6,22 @@ import (
 	"time"
 
 	"github.com/go-kratos/kratos/v2/config"
-	configUtil "github.com/liuxiong332/kratos-starter/config"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type MongoConfig struct {
-	Username string
-	Password string
-	Server   string
+	Username    string `json:"username"`
+	Password    string `json:"password"`
+	Server      string `json:"server"`
+	MinPoolSize int    `json:"minPoolSize"`
+	MaxPoolSize int    `json:"maxPoolSize"`
 }
 
 func ParseMongoConfig(config config.Config) (*MongoConfig, error) {
 	var mongoConfig MongoConfig
-	configUtil.DumpConfig(config, "mongo", &mongoConfig)
-	if mongoConfig.Server == "" {
-		return &mongoConfig, fmt.Errorf("Mongo server is not specified")
+	if err := config.Value("mongo").Scan(&mongoConfig); err != nil {
+		return nil, err
 	}
 	return &mongoConfig, nil
 }
@@ -36,5 +36,13 @@ func NewClient(config *MongoConfig) (*mongo.Client, error) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	return mongo.Connect(ctx, options.Client().ApplyURI(mongoUri))
+
+	mongoOpts := options.Client().ApplyURI(mongoUri)
+	if config.MinPoolSize == 0 {
+		mongoOpts.SetMinPoolSize(uint64(config.MinPoolSize))
+	}
+	if config.MaxPoolSize != 0 {
+		mongoOpts.SetMaxPoolSize(uint64(config.MaxPoolSize))
+	}
+	return mongo.Connect(ctx, mongoOpts)
 }

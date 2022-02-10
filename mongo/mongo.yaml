@@ -1,0 +1,6 @@
+mongo:
+  username: user
+  password: pwd
+  server: server
+  minPoolSize: 0
+  maxPoolSize: 1

@@ -108,7 +108,7 @@ require (
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-playground/validator/v10 v10.9.0 // indirect
 	github.com/go-redis/redis/v8 v8.11.4
-	github.com/go-redsync/redsync/v4 v4.5.0
+	github.com/go-redsync/redsync/v4 v4.5.0 // indirect
 	github.com/go-zookeeper/zk v1.0.2
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/gorilla/mux v1.8.0 // indirect
@@ -131,3 +131,5 @@ require (
 	google.golang.org/grpc v1.40.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
+
+replace github.com/RichardKnop/machinery/v2 => github.com/liuxiong332/machinery/v2 v2.0.13

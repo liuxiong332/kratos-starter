@@ -6,19 +6,20 @@ import (
 	"github.com/RichardKnop/machinery/v2/log"
 	"github.com/RichardKnop/machinery/v2/tasks"
 
-	mongobackend "github.com/RichardKnop/machinery/v2/backends/mongo"
-	redisbroker "github.com/liuxiong332/kratos-starter/machinery/broker"
-	redislock "github.com/liuxiong332/kratos-starter/machinery/lock"
+	redisbackend "github.com/RichardKnop/machinery/v2/backends/redis"
+	redisbroker "github.com/RichardKnop/machinery/v2/brokers/redis"
+	redislock "github.com/RichardKnop/machinery/v2/locks/redis"
 
 	mongoUtils "github.com/liuxiong332/kratos-starter/mongo"
 	redisUtils "github.com/liuxiong332/kratos-starter/redis"
 )
 
 type MachineryConfig struct {
-	MongoConfig  *mongoUtils.MongoConfig
-	RedisConfig  *redisUtils.RedisConfig
-	TaskDatabase string
-	DefaultQueue string
+	MongoConfig     *mongoUtils.MongoConfig
+	RedisConfig     *redisUtils.RedisConfig
+	TaskDatabase    string
+	DefaultQueue    string
+	ResultsExpireIn int
 }
 
 func StartServer(machineryCfg MachineryConfig) (*machinery.Server, error) {
@@ -29,7 +30,7 @@ func StartServer(machineryCfg MachineryConfig) (*machinery.Server, error) {
 
 	cnf := &config.Config{
 		DefaultQueue:    machineryCfg.DefaultQueue,
-		ResultsExpireIn: 3600,
+		ResultsExpireIn: machineryCfg.ResultsExpireIn,
 		Redis: &config.RedisConfig{
 			MaxIdle:                3,
 			IdleTimeout:            240,
@@ -47,12 +48,9 @@ func StartServer(machineryCfg MachineryConfig) (*machinery.Server, error) {
 
 	redisAddr := machineryCfg.RedisConfig.Nodes
 	// Create server instance
-	broker := redisbroker.NewGR(cnf, redisAddr, 0, true)
-	backend, err := mongobackend.New(cnf)
-	if err != nil {
-		return nil, err
-	}
-	lock := redislock.New(cnf, redisAddr, true, 0, 5)
+	broker := redisbroker.NewCluster(cnf, redisAddr)
+	backend := redisbackend.NewCluster(cnf, redisAddr)
+	lock := redislock.NewCluster(cnf, redisAddr, 5)
 	server := machinery.NewServer(cnf, broker, backend, lock)
 
 	return server, nil

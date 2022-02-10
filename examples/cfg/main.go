@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	appStarter := app.NewApp("ai-studio", nil)
+	appStarter := app.NewApp("cluster-autoscaler", nil)
 
 	var kvs map[string]interface{}
 
