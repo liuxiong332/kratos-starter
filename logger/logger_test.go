@@ -8,5 +8,5 @@ import (
 
 func TestLogger(t *testing.T) {
 	logger := NewLogger()
-	logger.Log(log.LevelFatal, "Hello world")
+	logger.Log(log.LevelInfo, "hello", "Hello world")
 }

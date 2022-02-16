@@ -21,6 +21,7 @@ func NewLogger() *zapLog.Logger {
 	w := zap.CombineWriteSyncers(stdout, fileOut)
 
 	config := zap.NewProductionEncoderConfig()
+	config.MessageKey = "message"
 	config.EncodeTime = zapcore.ISO8601TimeEncoder
 
 	core := zapcore.NewCore(zapcore.NewJSONEncoder(config), w, zap.InfoLevel)
