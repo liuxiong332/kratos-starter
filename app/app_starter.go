@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	consulConfig "github.com/liuxiong332/kratos-starter/config/consul"
 
@@ -31,7 +32,9 @@ import (
 )
 
 func GetInstance(discovery registry.Discovery, serviceName string, logHelper *log.Helper) string {
-	watcher, err := discovery.Watch(context.Background(), serviceName)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	defer cancel()
+	watcher, err := discovery.Watch(ctx, serviceName)
 	if err != nil {
 		logHelper.Fatal(err)
 	}
