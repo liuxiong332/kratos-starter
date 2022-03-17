@@ -123,7 +123,7 @@ func (r *Registry) Watch(ctx context.Context, name string) (registry.Watcher, er
 	w := &watcher{
 		event: make(chan struct{}, 1),
 	}
-	w.ctx, w.cancel = context.WithCancel(context.Background())
+	w.ctx, w.cancel = context.WithCancel(ctx)
 	w.set = set
 	set.lock.Lock()
 	set.watcher[w] = struct{}{}
