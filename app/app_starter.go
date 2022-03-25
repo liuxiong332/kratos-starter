@@ -40,7 +40,7 @@ func GetInstance(discovery registry.Discovery, serviceName string, logHelper *lo
 	}
 	svcInstants, err := watcher.Next()
 	if err != nil {
-		logHelper.Fatal(err)
+		logHelper.Error(err)
 	}
 	if err := watcher.Stop(); err != nil {
 		logHelper.Errorf("Failed to http client watch stop, err: %v", err)
@@ -58,6 +58,32 @@ type AppStarter struct {
 	Logger   *zapLog.Logger
 	Registry *consul.Registry
 	Config   config.Config
+}
+
+func newVaultConfig(registry *consul.Registry, logHelper *log.Helper, appName string, bootstrapConfig *BootstrapConfig) config.Source {
+	// 初始化 vault config
+	vaultAddr := GetInstance(registry, "vault", logHelper)
+
+	if vaultAddr != "" {
+		if !strings.HasPrefix(vaultAddr, "http://") {
+			vaultAddr = "http://" + vaultAddr
+		}
+
+		vaultClient, err := vaultApi.NewClient(&vaultApi.Config{
+			Address: vaultAddr,
+		})
+		if err != nil {
+			logHelper.Fatal(err)
+		}
+		vaultClient.SetToken(bootstrapConfig.VaultToken)
+
+		vaultSrc, err := vaultConfig.New(vaultClient, vaultConfig.WithPath(fmt.Sprintf("secret/%s", appName)))
+		if err != nil {
+			logHelper.Fatalf("New vault config error: %v", err)
+		}
+		return vaultSrc
+	}
+	return nil
 }
 
 func NewApp(appName string, bootstrapConfig *BootstrapConfig) *AppStarter {
@@ -80,12 +106,9 @@ func NewApp(appName string, bootstrapConfig *BootstrapConfig) *AppStarter {
 	}
 
 	consulSrc, err := consulConfig.New(client, consulConfig.WithPath(fmt.Sprintf("config/%s", appName)))
-
-	// kvs, err := consulSrc.Load()
-	// if err != nil {
-	// 	logHelper.Fatalf("Load consul config error: %v", err.Error())
-	// }
-	// logHelper.Info("Get Consul config: %+v", kvs)
+	if err != nil {
+		logHelper.Fatalf("New consul error: %v", err.Error())
+	}
 
 	// 初始化 consul registry
 	var registry *consul.Registry
@@ -96,57 +119,31 @@ func NewApp(appName string, bootstrapConfig *BootstrapConfig) *AppStarter {
 	}
 
 	logHelper.Info("Start init vault config")
-	// 初始化 vault config
-	vaultAddr := GetInstance(registry, "vault", logHelper)
 
-	if vaultAddr == "" {
-		logHelper.Fatal("Don't find vault instant")
-	}
-
-	if !strings.HasPrefix(vaultAddr, "http://") {
-		vaultAddr = "http://" + vaultAddr
-	}
-
-	vaultClient, err := vaultApi.NewClient(&vaultApi.Config{
-		Address: vaultAddr,
-	})
-	if err != nil {
-		logHelper.Fatal(err)
-	}
-	vaultClient.SetToken(bootstrapConfig.VaultToken)
-
-	vaultSrc, err := vaultConfig.New(vaultClient, vaultConfig.WithPath(fmt.Sprintf("secret/%s", appName)))
-
-	// vaultKvs, err := vaultSrc.Load()
-	// if err != nil {
-	// 	logHelper.Fatalf("Load vault config error: %v", err)
-	// }
-	// pp.Printf("Get vault kv: %v", vaultKvs)
+	vaultSrc := newVaultConfig(registry, logHelper, appName, bootstrapConfig)
 
 	// 初始化 config
 	configPath := bootstrapConfig.ConfigPath
 	if configPath == "" {
 		configPath = "./conf/application.yaml"
 	}
+
+	var configSrcs []config.Source
+
 	var cfg config.Config
-	if _, err := os.Stat(configPath); errors.Is(err, os.ErrNotExist) {
-		cfg = config.New(
-			config.WithSource(
-				consulSrc,
-				vaultSrc,
-				env.NewSource("APP_"),
-			),
-		)
-	} else {
-		cfg = config.New(
-			config.WithSource(
-				file.NewSource("./conf/application.yaml"),
-				consulSrc,
-				vaultSrc,
-				env.NewSource("APP_"),
-			),
-		)
+	if _, err := os.Stat(configPath); !errors.Is(err, os.ErrNotExist) {
+		configSrcs = append(configSrcs, file.NewSource("./conf/application.yaml"))
 	}
+
+	configSrcs = append(configSrcs, consulSrc)
+
+	if vaultSrc != nil {
+		configSrcs = append(configSrcs, vaultSrc)
+	}
+
+	configSrcs = append(configSrcs, env.NewSource("APP_"))
+
+	cfg = config.New(config.WithSource(configSrcs...))
 
 	if err := cfg.Load(); err != nil {
 		logHelper.Fatalf("App load config error")
