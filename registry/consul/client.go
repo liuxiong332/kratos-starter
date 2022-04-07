@@ -74,6 +74,9 @@ func (d *Client) Register(ctx context.Context, svc *registry.ServiceInstance, en
 	addresses := make(map[string]api.ServiceAddress)
 	var addr string
 	var port uint64
+	var httpAddr string
+	var httpPort uint64
+
 	for _, endpoint := range svc.Endpoints {
 		raw, err := url.Parse(endpoint)
 		if err != nil {
@@ -82,11 +85,19 @@ func (d *Client) Register(ctx context.Context, svc *registry.ServiceInstance, en
 		addr = raw.Hostname()
 		port, _ = strconv.ParseUint(raw.Port(), 10, 16)
 		addresses[raw.Scheme] = api.ServiceAddress{Address: endpoint, Port: int(port)}
+		if raw.Scheme == "http" {
+			httpAddr = addr
+			httpPort = port
+		}
+	}
+
+	if httpAddr != "" && httpPort != 0 {
+		addr = httpAddr
+		port = httpPort
 	}
 	cTags := []string{fmt.Sprintf("version=%s", svc.Version)}
-	for _, tag := range tags {
-		cTags = append(cTags, tag)
-	}
+	cTags = append(cTags, tags...)
+
 	asr := &api.AgentServiceRegistration{
 		ID:              svc.ID,
 		Name:            svc.Name,
