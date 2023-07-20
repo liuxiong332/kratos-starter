@@ -120,18 +120,18 @@ func (d *Client) Register(ctx context.Context, svc *registry.ServiceInstance, en
 	if err != nil {
 		return err
 	}
-	go func() {
-		ticker := time.NewTicker(time.Second * 20)
-		defer ticker.Stop()
-		for {
-			select {
-			case <-ticker.C:
-				d.cli.Agent().UpdateTTL("service:"+svc.ID, "pass", "pass")
-			case <-d.ctx.Done():
-				return
-			}
-		}
-	}()
+	// go func() {
+	// 	ticker := time.NewTicker(time.Second * 20)
+	// 	defer ticker.Stop()
+	// 	for {
+	// 		select {
+	// 		case <-ticker.C:
+	// 			d.cli.Agent().UpdateTTL("service:"+svc.ID, "pass", "pass")
+	// 		case <-d.ctx.Done():
+	// 			return
+	// 		}
+	// 	}
+	// }()
 	return nil
 }
 
