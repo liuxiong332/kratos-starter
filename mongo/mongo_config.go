@@ -3,6 +3,7 @@ package mongo
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"time"
 
 	"github.com/go-kratos/kratos/v2/config"
@@ -11,11 +12,12 @@ import (
 )
 
 type MongoConfig struct {
-	Username    string `json:"username"`
-	Password    string `json:"password"`
-	Server      string `json:"server"`
-	MinPoolSize int    `json:"minPoolSize"`
-	MaxPoolSize int    `json:"maxPoolSize"`
+	ConnectionString string `json:"connectionString"`
+	Username         string `json:"username"`
+	Password         string `json:"password"`
+	Server           string `json:"server"`
+	MinPoolSize      int    `json:"minPoolSize"`
+	MaxPoolSize      int    `json:"maxPoolSize"`
 }
 
 func ParseMongoConfig(config config.Config) (*MongoConfig, error) {
@@ -26,9 +28,23 @@ func ParseMongoConfig(config config.Config) (*MongoConfig, error) {
 	return &mongoConfig, nil
 }
 
+// connectionString: mongodb+srv://{username}:{password}@{server}/?retryWrites=true&w=1&readPreference=secondaryPreferred
 func NewClient(config *MongoConfig) (*mongo.Client, error) {
 	var mongoUri string
-	if config.Username != "" {
+	if config.ConnectionString != "" {
+		mongoUri = regexp.MustCompile(`\{\w+\}`).ReplaceAllStringFunc(config.ConnectionString, func(s string) string {
+			switch s[1 : len(s)-1] {
+			case "username":
+				return config.Username
+			case "password":
+				return config.Password
+			case "server":
+				return config.Server
+			default:
+				return s
+			}
+		})
+	} else if config.Username != "" {
 		mongoUri = fmt.Sprintf("mongodb://%s:%s@%s/?retryWrites=false", config.Username, config.Password, config.Server)
 	} else {
 		mongoUri = fmt.Sprintf("mongodb://%s/?retryWrites=false", config.Server)
