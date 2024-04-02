@@ -29,7 +29,7 @@ func ParseMongoConfig(config config.Config) (*MongoConfig, error) {
 }
 
 // connectionString: mongodb+srv://{username}:{password}@{server}/?retryWrites=true&w=1&readPreference=secondaryPreferred
-func NewClient(config *MongoConfig) (*mongo.Client, error) {
+func NewMongoOptions(config *MongoConfig) *options.ClientOptions {
 	var mongoUri string
 	if config.ConnectionString != "" {
 		mongoUri = regexp.MustCompile(`\{\w+\}`).ReplaceAllStringFunc(config.ConnectionString, func(s string) string {
@@ -50,9 +50,6 @@ func NewClient(config *MongoConfig) (*mongo.Client, error) {
 		mongoUri = fmt.Sprintf("mongodb://%s/?retryWrites=false", config.Server)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
 	mongoOpts := options.Client().ApplyURI(mongoUri)
 	if config.MinPoolSize != 0 {
 		mongoOpts.SetMinPoolSize(uint64(config.MinPoolSize))
@@ -60,5 +57,14 @@ func NewClient(config *MongoConfig) (*mongo.Client, error) {
 	if config.MaxPoolSize != 0 {
 		mongoOpts.SetMaxPoolSize(uint64(config.MaxPoolSize))
 	}
+	return mongoOpts
+}
+
+func NewClient(config *MongoConfig) (*mongo.Client, error) {
+	mongoOpts := NewMongoOptions(config)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
 	return mongo.Connect(ctx, mongoOpts)
 }
