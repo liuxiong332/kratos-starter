@@ -145,7 +145,7 @@ func (r *Registry) resolve(ss *serviceSet) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	services, idx, err := r.cli.Service(ctx, ss.serviceName, 0, true)
 	cancel()
-	if err == nil && len(services) > 0 {
+	if err == nil {
 		ss.broadcast(services)
 	}
 	ticker := time.NewTicker(time.Second)
@@ -159,7 +159,7 @@ func (r *Registry) resolve(ss *serviceSet) {
 			time.Sleep(time.Second)
 			continue
 		}
-		if len(tmpService) != 0 && tmpIdx != idx {
+		if tmpIdx != idx {
 			services = tmpService
 			ss.broadcast(services)
 		}
