@@ -50,7 +50,6 @@ require (
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/gomodule/redigo v2.0.0+incompatible // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
-	github.com/google/uuid v1.3.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.2.3 // indirect
 	github.com/googleapis/gax-go/v2 v2.7.1 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
@@ -117,6 +116,7 @@ require (
 require (
 	github.com/gin-gonic/gin v1.7.4
 	github.com/go-kratos/gin v0.1.0
+	github.com/google/uuid v1.3.0
 	github.com/stretchr/testify v1.8.4
 )
 
