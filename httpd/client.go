@@ -244,7 +244,9 @@ func (client *Client) do(req *http.Request) (*http.Response, error) {
 			req.URL.Scheme = "https"
 		}
 		req.URL.Host = node.Address()
-		req.Host = node.Address()
+		if req.Host == "" {
+			req.Host = node.Address()
+		}
 	}
 	resp, err := client.cc.Do(req)
 	if err == nil {
