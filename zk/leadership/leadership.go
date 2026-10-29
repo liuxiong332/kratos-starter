@@ -2,17 +2,28 @@ package leadership
 
 import (
 	"context"
+	"time"
 
 	"github.com/Comcast/go-leaderelection"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-zookeeper/zk"
 )
 
+// retryDelay bounds the leader-election retry loop. Without it a ZooKeeper
+// outage would turn TakeLeader's `for {}` into a hot spin.
+const retryDelay = 5 * time.Second
+
 func takeLeader(zkConn *zk.Conn, leaderRootPath string, logger *log.Helper, onTakeLeadership func(ctx context.Context) error) {
 	candidate, err := leaderelection.NewElection(zkConn, leaderRootPath, "electron")
 
 	if err != nil {
-		logger.Fatalf("New election error: %v", err)
+		// Must not be Fatalf: a transient ZooKeeper i/o timeout used to call
+		// os.Exit(1) here, which killed the whole process (indicator-calculator
+		// restarted twice a day right after the CN open for exactly this), and a
+		// restart also drops the kafka consumer group membership. The caller
+		// retries, so return and let it do that.
+		logger.Errorf("New election error: %v, will retry leader election in %v", err, retryDelay)
+		return
 	}
 
 	go candidate.ElectLeader()
@@ -58,15 +69,19 @@ func takeLeader(zkConn *zk.Conn, leaderRootPath string, logger *log.Helper, onTa
 }
 
 func TakeLeader(zkConn *zk.Conn, leaderRootPath string, logger *log.Helper, onTakeLeadership func(ctx context.Context) error) {
-	if exists, _, _ := zkConn.Exists(leaderRootPath); !exists {
-		// Create the election node in ZooKeeper
-		_, err := zkConn.Create(leaderRootPath, []byte(""), 0, zk.WorldACL(zk.PermAll))
-		if err != nil {
-			logger.Fatalf("Error creating the election node: %v", err)
+	if exists, err, _ := zkConn.Exists(leaderRootPath); !exists {
+		// Create the election node in ZooKeeper. A failure here is the same
+		// transient ZooKeeper outage as in takeLeader: log it and let the retry
+		// loop below try again instead of exiting the process.
+		if _, err := zkConn.Create(leaderRootPath, []byte(""), 0, zk.WorldACL(zk.PermAll)); err != nil {
+			logger.Errorf("Error creating the election node %s: %v, will retry", leaderRootPath, err)
 		}
+	} else if err != nil {
+		logger.Errorf("Error checking the election node %s: %v, will retry", leaderRootPath, err)
 	}
 
 	for {
 		takeLeader(zkConn, leaderRootPath, logger, onTakeLeadership)
+		time.Sleep(retryDelay)
 	}
 }
