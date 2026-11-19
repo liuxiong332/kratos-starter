@@ -33,6 +33,16 @@ func WithTags(tags []string) Option {
 	}
 }
 
+// WithServiceName overrides the consul service name every instance registers
+// under, whatever kratos.Name says. It lets a process read its config by one
+// name and be discovered under another without the caller having to route the
+// registration name through kratos.Name by hand. Empty keeps the caller's name.
+func WithServiceName(name string) Option {
+	return func(o *Registry) {
+		o.serviceName = name
+	}
+}
+
 // Config is consul registry config
 type Config struct {
 	*api.Config
@@ -44,6 +54,7 @@ type Registry struct {
 	cli               *Client
 	enableHealthCheck bool
 	tags              []string
+	serviceName       string
 
 	registry map[string]*serviceSet
 	lock     sync.RWMutex
@@ -64,7 +75,19 @@ func New(apiClient *api.Client, opts ...Option) *Registry {
 
 // Register register service
 func (r *Registry) Register(ctx context.Context, svc *registry.ServiceInstance) error {
-	return r.cli.Register(ctx, svc, r.enableHealthCheck, r.tags)
+	return r.cli.Register(ctx, r.withServiceName(svc), r.enableHealthCheck, r.tags)
+}
+
+// withServiceName applies the WithServiceName override on a copy: the instance
+// the caller keeps (kratos appends it for Deregister, which keys on ID) must not
+// be mutated, and only the advertised name changes.
+func (r *Registry) withServiceName(svc *registry.ServiceInstance) *registry.ServiceInstance {
+	if svc == nil || r.serviceName == "" || svc.Name == r.serviceName {
+		return svc
+	}
+	copied := *svc
+	copied.Name = r.serviceName
+	return &copied
 }
 
 // Deregister deregister service

@@ -11,7 +11,7 @@ use env `APP_CONFIG_PATH`, flag `--config_path` or default `./conf/application.y
 
 #### consul 
 env `APP_CONSUL_ADDRESS` or flag `--consul_address` as the consul address, env `APP_CONSUL_TOKEN` or flag `--consul_token` as the consul token
-the config is read from `config/{appName}`, while the app registers itself under `AppStarter.ServiceName`; both are `<appName>` unless env `APP_SERVICE_NAME` or flag `--service_name` sets the registration name separately
+the config is read from `config/{appName}`; the app registers under `{appName}` too, unless env `APP_SERVICE_NAME` or flag `--service_name` names it differently — the starter applies that name to the consul registry itself, so `kratos.Name` (and the code around it) does not have to change. The resolved name is also exposed as `AppStarter.ServiceName` for building the instance ID.
 
 #### vault
 the vault address service discovery with consul, env `APP_VAULT_TOKEN` or flag `--vault_token` as the vault token)

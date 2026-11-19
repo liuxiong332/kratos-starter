@@ -146,12 +146,15 @@ func NewApp(appName string, bootstrapConfig *BootstrapConfig) *AppStarter {
 	}
 
 	// 初始化 consul registry
-	var registry *consul.Registry
+	registryOpts := make([]consulRegistry.Option, 0, 2)
 	if bootstrapConfig.ConsulTags != "" {
-		registry = consulRegistry.New(client, consul.WithTags(strings.Split(bootstrapConfig.ConsulTags, ",")))
-	} else {
-		registry = consulRegistry.New(client)
+		registryOpts = append(registryOpts, consul.WithTags(strings.Split(bootstrapConfig.ConsulTags, ",")))
 	}
+	if serviceName != appName {
+		// 只有显式配置了注册名才覆盖，未配置时注册名仍完全由 kratos.Name 决定
+		registryOpts = append(registryOpts, consul.WithServiceName(serviceName))
+	}
+	registry := consulRegistry.New(client, registryOpts...)
 
 	logHelper.Info("Start init vault config")
 
