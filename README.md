@@ -14,6 +14,7 @@ env `APP_CONSUL_ADDRESS` or flag `--consul_address` as the consul address, env `
 
 #### vault
 the vault address service discovery with consul, env `APP_VAULT_TOKEN` or flag `--vault_token` as the vault token)
+the config path is `<prefix>/<appName>`, env `APP_VAULT_PREFIX` or flag `--vault_prefix` as the prefix, default `secret` (e.g. set `vega-secret` when the app config lives in the `vega-secret` mount)
 
 #### env
 The environment variable with prefix `APP_` will used as the config.

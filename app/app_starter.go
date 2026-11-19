@@ -60,6 +60,18 @@ type AppStarter struct {
 	Config   config.Config
 }
 
+const defaultVaultPrefix = "secret"
+
+// vaultConfigPath joins the vault prefix and the app name into the config path,
+// so a custom mount such as "vega-secret" can be used without touching callers.
+func vaultConfigPath(prefix, appName string) string {
+	prefix = strings.Trim(strings.TrimSpace(prefix), "/")
+	if prefix == "" {
+		prefix = defaultVaultPrefix
+	}
+	return fmt.Sprintf("%s/%s", prefix, strings.Trim(appName, "/"))
+}
+
 func newVaultConfig(registry *consul.Registry, logHelper *log.Helper, appName string, bootstrapConfig *BootstrapConfig) config.Source {
 	// 初始化 vault config
 	vaultAddr := GetInstance(registry, "vault", logHelper)
@@ -77,7 +89,8 @@ func newVaultConfig(registry *consul.Registry, logHelper *log.Helper, appName st
 		}
 		vaultClient.SetToken(bootstrapConfig.VaultToken)
 
-		vaultSrc, err := vaultConfig.New(vaultClient, vaultConfig.WithPath(fmt.Sprintf("secret/%s", appName)))
+		vaultPath := vaultConfigPath(bootstrapConfig.VaultPrefix, appName)
+		vaultSrc, err := vaultConfig.New(vaultClient, vaultConfig.WithPath(vaultPath))
 		if err != nil {
 			logHelper.Fatalf("New vault config error: %v", err)
 		}
