@@ -14,6 +14,10 @@ type BootstrapConfig struct {
 	// VaultPrefix is the vault mount/path prefix the app config is read from,
 	// e.g. "secret" or "vega-secret". Empty means the default "secret".
 	VaultPrefix string
+	// ServiceName is the consul service name the app registers itself under.
+	// Empty means the app name given to NewApp, which is also the name the
+	// config is read by (config/{appName} and {vaultPrefix}/{appName}).
+	ServiceName string
 }
 
 func copyIfNotEmpty(str *string, target *string) {
@@ -30,6 +34,7 @@ func ParseBootstrapConfigEnv() *BootstrapConfig {
 		os.Getenv("APP_CONSUL_TAGS"),
 		os.Getenv("APP_VAULT_TOKEN"),
 		os.Getenv("APP_VAULT_PREFIX"),
+		os.Getenv("APP_SERVICE_NAME"),
 	}
 
 	if !flag.Parsed() {
@@ -45,6 +50,7 @@ func ParseBootstrapConfigFlag(config *BootstrapConfig) {
 	token := flag.String("consul_token", "", "Consul Token")
 	vaultToken := flag.String("vault_token", "", "Vault Token")
 	vaultPrefix := flag.String("vault_prefix", "", "Vault config path prefix, defaults to secret")
+	serviceName := flag.String("service_name", "", "Consul service name to register, defaults to the app name")
 
 	flag.Parse()
 
@@ -53,4 +59,5 @@ func ParseBootstrapConfigFlag(config *BootstrapConfig) {
 	copyIfNotEmpty(token, &config.ConsulToken)
 	copyIfNotEmpty(vaultToken, &config.VaultToken)
 	copyIfNotEmpty(vaultPrefix, &config.VaultPrefix)
+	copyIfNotEmpty(serviceName, &config.ServiceName)
 }

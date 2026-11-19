@@ -58,6 +58,11 @@ type AppStarter struct {
 	Logger   *zapLog.Logger
 	Registry *consul.Registry
 	Config   config.Config
+	// ServiceName is the consul service name to register the app under
+	// (kratos.Name). It defaults to the app name passed to NewApp, which is
+	// the name the config is read by, and can be set independently with
+	// APP_SERVICE_NAME / --service_name.
+	ServiceName string
 }
 
 const defaultVaultPrefix = "secret"
@@ -99,6 +104,16 @@ func newVaultConfig(registry *consul.Registry, logHelper *log.Helper, appName st
 	return nil
 }
 
+// resolveServiceName is the registration name: the explicit APP_SERVICE_NAME
+// wins, otherwise the app name is used so existing services keep registering
+// exactly as before.
+func resolveServiceName(serviceName, appName string) string {
+	if name := strings.TrimSpace(serviceName); name != "" {
+		return name
+	}
+	return strings.TrimSpace(appName)
+}
+
 func NewApp(appName string, bootstrapConfig *BootstrapConfig) *AppStarter {
 	if bootstrapConfig == nil {
 		bootstrapConfig = ParseBootstrapConfigEnv()
@@ -107,6 +122,13 @@ func NewApp(appName string, bootstrapConfig *BootstrapConfig) *AppStarter {
 	// 初始话 logger
 	logger := appLog.NewLogger()
 	logHelper := log.NewHelper(logger)
+
+	serviceName := resolveServiceName(bootstrapConfig.ServiceName, appName)
+	if serviceName == appName {
+		logHelper.Infof("Service %s registers as %s and reads config by %s", appName, serviceName, appName)
+	} else {
+		logHelper.Infof("Service registers as %s but reads config by %s", serviceName, appName)
+	}
 
 	// 初始化 consul config
 	logHelper.Info("Start init consul config")
@@ -162,8 +184,9 @@ func NewApp(appName string, bootstrapConfig *BootstrapConfig) *AppStarter {
 		logHelper.Fatalf("App load config error")
 	}
 	return &AppStarter{
-		Logger:   logger,
-		Registry: registry,
-		Config:   cfg,
+		Logger:      logger,
+		Registry:    registry,
+		Config:      cfg,
+		ServiceName: serviceName,
 	}
 }

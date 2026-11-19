@@ -11,6 +11,7 @@ use env `APP_CONFIG_PATH`, flag `--config_path` or default `./conf/application.y
 
 #### consul 
 env `APP_CONSUL_ADDRESS` or flag `--consul_address` as the consul address, env `APP_CONSUL_TOKEN` or flag `--consul_token` as the consul token
+the config is read from `config/{appName}`, while the app registers itself under `AppStarter.ServiceName`; both are `<appName>` unless env `APP_SERVICE_NAME` or flag `--service_name` sets the registration name separately
 
 #### vault
 the vault address service discovery with consul, env `APP_VAULT_TOKEN` or flag `--vault_token` as the vault token)
@@ -44,7 +45,7 @@ func main() {
 	appStarter := app.NewApp("my-worker", nil)
 
 	app := kratos.New(
-		kratos.Name("my-worker"),
+		kratos.Name(appStarter.ServiceName),
 		kratos.Version(""),
 		kratos.Metadata(map[string]string{}),
 		kratos.Logger(appStarter.Logger),

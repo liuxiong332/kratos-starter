@@ -23,3 +23,23 @@ func TestVaultConfigPath(t *testing.T) {
 		}
 	}
 }
+
+func TestResolveServiceName(t *testing.T) {
+	cases := []struct {
+		serviceName string
+		appName     string
+		want        string
+	}{
+		{"", "my-worker", "my-worker"},
+		{"  ", "my-worker", "my-worker"},
+		{"my-worker", "my-worker", "my-worker"},
+		{"my-worker-canary", "my-worker", "my-worker-canary"},
+		{" my-worker-canary ", "my-worker", "my-worker-canary"},
+	}
+
+	for _, c := range cases {
+		if got := resolveServiceName(c.serviceName, c.appName); got != c.want {
+			t.Errorf("resolveServiceName(%q, %q) = %q, want %q", c.serviceName, c.appName, got, c.want)
+		}
+	}
+}

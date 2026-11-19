@@ -47,7 +47,7 @@ func main() {
 	httpSrv.HandlePrefix("/", router)
 
 	app := kratos.New(
-		kratos.Name("hello-world"),
+		kratos.Name(appStarter.ServiceName),
 		kratos.Version(""),
 		kratos.Metadata(map[string]string{}),
 		kratos.Logger(appStarter.Logger),
